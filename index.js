@@ -23,7 +23,10 @@ const searchFor = "macbook";
   await Promise.all([
    page.waitForNavigation(),
    page.click('.nav-search-btn')
-  ])
+  ]) //executa a navegação da página clicando no botão de pesquisa (nav-search-btn)
+
+  const links = await page.$$eval('.ui-search-item__brand-discoverability ui-search-item__group__element > a', el => el.map(link => link.href));
+  console.log(links);
 
 //   await browser.close();
   //fecha o browser
