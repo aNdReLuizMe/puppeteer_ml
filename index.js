@@ -3,8 +3,12 @@ const pup = require('puppeteer');
 const url = 'https://www.mercadolivre.com.br';
 const searchFor = 'macbook';
 
+let pageCount = 1;
+
+const list = [];
+
 (async () => {
-  const browser = await pup.launch({ headless: false });
+  const browser = await pup.launch({ headless: true });
   //abre o browser - headless quer dizer no backgroud, estando falso vc ve tudo o que ocorre
   const page = await browser.newPage();
   //abre uma nova página
@@ -27,9 +31,10 @@ const searchFor = 'macbook';
 
   const links = await page.$$eval('.ui-search-item__group > a', el => el.map(link => link.href));
 
-  let pageCount = 1;
+  // let pageCount = 1;
 
   for(const link of links) {
+    if(pageCount === 5) continue;
 
     console.log('Página: ', pageCount);
 
@@ -40,15 +45,27 @@ const searchFor = 'macbook';
     const title = await page.$eval('.ui-pdp-title', el => el.innerText);
     const price = await page.$eval('.andes-money-amount__fraction', el => el.innerText);
     
-    const obj = {title, price};
-    console.log(obj);
+    const seller = await page.evaluate( () => {
+      const el = document.querySelector('.ui-pdp-seller__link-trigger');
+      if(!el) return null
+      return el.innerText;
+    })
+    
+    const obj = {};
+    obj.title = title;
+    obj.price = price;
+    (seller ? obj.seller = seller : '');
+    obj.link = link;
+
+    list.push(obj);
 
     pageCount++;
 
     await new Promise(r => setTimeout(r, 3000));
 
   }
+  console.log(list);
 
-//   await browser.close();
-  //fecha o browser
+  await browser.close();
+
 })();
