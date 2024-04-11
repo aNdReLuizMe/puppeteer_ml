@@ -25,8 +25,29 @@ const searchFor = 'macbook';
    page.click('.nav-search-btn')
   ]) //executa a navegação da página clicando no botão de pesquisa (nav-search-btn)
 
-  const links = await page.$$eval('.ui-search-item__image > a', el => el.map(link => link.href));
-  console.log(links);
+  const links = await page.$$eval('.ui-search-item__group > a', el => el.map(link => link.href));
+
+  let pageCount = 1;
+
+  for(const link of links) {
+
+    console.log('Página: ', pageCount);
+
+    await page.goto(link);
+
+    await page.waitForSelector('.ui-pdp-title');
+
+    const title = await page.$eval('.ui-pdp-title', el => el.innerText);
+    const price = await page.$eval('.andes-money-amount__fraction', el => el.innerText);
+    
+    const obj = {title, price};
+    console.log(obj);
+
+    pageCount++;
+
+    await new Promise(r => setTimeout(r, 3000));
+
+  }
 
 //   await browser.close();
   //fecha o browser
